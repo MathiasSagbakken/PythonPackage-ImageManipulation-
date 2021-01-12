@@ -1,0 +1,76 @@
+#!/usr/bin/python
+import argparse
+import os
+import sys
+import cv2
+
+from instapyP.numpySepia import numpy_color2sepia
+from instapyP.numbaSepia import numba_color2sepia
+from instapyP.pythonSepia import python_color2sepia
+from instapyP.numpy_color2gray import numpy_color2gray
+from instapyP.numba_color2gray import numba_color2gray
+from instapyP.python_color2gray import python_color2gray
+
+from instapyP.sepia_image import sepia_image
+from instapyP.grayscale_image import grayscale_image
+
+
+if __name__ == "__main__":
+
+    """
+    user interface som lar bruker bruke programmet fra kommandovinduet
+    avhengig av flaggene gitt vil filtrering og hurtighet av filtreringen
+    varriere
+
+    Args:
+        -
+
+    returns:
+        -
+    """
+
+
+    my_parser = argparse.ArgumentParser(description='Anvende ulike typer filter på angitt bilde')
+
+    my_parser.add_argument('-f', '--file', type=str, metavar='', required=True, help='path til bildet' )
+
+    group = my_parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-se', '--sepia', action='store_true', help='velg sepia filter' )
+    group.add_argument('-g', '--gray', action='store_true', help='velg grayscale filter' )
+
+    my_parser.add_argument('-sc', '--scale', type=float, metavar='', required=False, help='størrelse på bildet' )
+
+    my_parser.add_argument('-i', "--implement", metavar='', required=True, choices=['python', 'numpy', 'numba'], type=str.lower,help='velg en av disse; python, numpy, numba')
+
+    my_parser.add_argument('-o', '--out', type=str, metavar='', required=False, help='output filnavn' )
+
+
+    args = my_parser.parse_args()
+
+    if args.sepia:
+        ut = args.out
+        bilde = args.file
+        if args.scale:
+            bilde = cv2.imread(bilde)
+            bilde = cv2.resize(bilde,(0,0),fx=args.scale,fy=args.scale)
+        if (args.implement == "numpy"):
+            bilde = numpy_color2sepia(bilde)
+        elif (args.implement == "numba"):
+            bilde = numba_color2sepia(bilde)
+        elif (args.implement == "python"):
+            bilde = python_color2sepia(bilde)
+        sepia_image(bilde, ut)
+
+    if args.gray:
+        ut = args.out
+        bilde = args.file
+        if args.scale:
+            bilde = cv2.imread(bilde)
+            bilde = cv2.resize(bilde,(0,0),fx=args.scale,fy=args.scale)
+        if (args.implement == "numpy"):
+            bilde = numpy_color2gray(bilde)
+        elif (args.implement == "numba"):
+            bilde = numba_color2gray(bilde)
+        elif (args.implement == "python"):
+            bilde = python_color2gray(bilde)
+        grayscale_image(bilde, ut)
